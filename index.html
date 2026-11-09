@@ -1,0 +1,887 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090817">
+<title>A Little Wish For Miss Saiyara 💜</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #090817;
+  --purple: #c5a4ff;
+  --gold: #f6dba0;
+  --white: #fff9f2;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  color: var(--white);
+  font-family: Georgia, 'Times New Roman', serif;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#stars { z-index: 0; }
+#effects { z-index: 5; }
+
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 80%, #53316c55, transparent 55%),
+    radial-gradient(ellipse at 50% 15%, #263e7055, transparent 60%);
+  animation: ambient 8s ease-in-out infinite alternate;
+}
+
+@keyframes ambient {
+  from { opacity: .55; }
+  to { opacity: 1; }
+}
+
+/* SCREENS */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+
+  /* FIX: Safe centering for long content */
+  justify-content: safe center;
+  align-items: center;
+
+  padding: 28px 22px 90px;
+  text-align: center;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px);
+
+  transition:
+    opacity 1s ease,
+    transform 1s ease,
+    visibility 1s;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
+}
+
+.screen.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.small-label {
+  font-family: system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+h1 {
+  font-size: clamp(37px, 10vw, 58px);
+  line-height: 1.18;
+  font-weight: 400;
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.9;
+  color: #c8c0d6;
+  max-width: 390px;
+}
+
+.glow {
+  color: var(--gold);
+  text-shadow: 0 0 25px #f6dba055;
+}
+
+.purple {
+  color: var(--purple);
+}
+
+.btn {
+  margin-top: 30px;
+  padding: 15px 29px;
+  border: 1px solid #c5a4ff77;
+  background: #c5a4ff12;
+  color: white;
+  border-radius: 50px;
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: .3s;
+}
+
+.btn:active {
+  transform: scale(.95);
+}
+
+.btn:hover {
+  background: #c5a4ff2a;
+  box-shadow: 0 0 30px #c5a4ff33;
+}
+
+/* INTRO */
+
+.moon {
+  width: 95px;
+  height: 95px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    #fff9db, #f2dca6 55%, #a68c78);
+  box-shadow: 0 0 50px #f6dba066;
+  margin-bottom: 35px;
+  animation: moonFloat 5s ease-in-out infinite;
+}
+
+@keyframes moonFloat {
+  50% { transform: translateY(-12px); }
+}
+
+/* ENVELOPE */
+
+.envelope-wrap {
+  position: relative;
+  width: 190px;
+  height: 135px;
+  flex-shrink: 0;
+  margin: 35px auto 15px;
+  perspective: 700px;
+  cursor: pointer;
+}
+
+.envelope {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  background: linear-gradient(140deg, #7b5c99, #44335e);
+  border-radius: 5px;
+  box-shadow: 0 15px 55px #0008;
+}
+
+.envelope:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(35deg, transparent 49%, #aa88b9 50%);
+  clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
+  border-radius: 5px;
+}
+
+.flap {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 70%;
+  background: #b08cc5;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top;
+  transition: transform 1s ease;
+  z-index: 3;
+}
+
+.seal {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  font-size: 28px;
+  transition: opacity .5s;
+}
+
+.letter {
+  position: absolute;
+  left: 10%;
+  top: 10%;
+  width: 80%;
+  height: 85%;
+  background: #fff5e9;
+  color: #44334e;
+  border-radius: 3px;
+  z-index: 1;
+  transition: transform 1.2s ease;
+}
+
+.envelope-wrap.open .flap {
+  transform: rotateX(180deg);
+}
+
+.envelope-wrap.open .letter {
+  transform: translateY(-90px);
+}
+
+.envelope-wrap.open .seal {
+  opacity: 0;
+}
+
+/* MESSAGE */
+
+.letter-content {
+  max-width: 430px;
+  width: 100%;
+  flex-shrink: 0;
+  background: linear-gradient(145deg, #19152a, #100e20);
+  border: 1px solid #c5a4ff40;
+  padding: 30px 23px;
+  border-radius: 20px;
+  box-shadow: 0 20px 80px #0008;
+}
+
+.letter-content p {
+  font-size: 15px;
+  min-height: 145px;
+  text-align: left;
+  white-space: pre-wrap;
+  color: #e0d8e9;
+}
+
+.typed {
+  color: #fff5eb;
+}
+
+.signature {
+  color: var(--gold);
+  font-size: 19px;
+  margin-top: 25px;
+  font-style: italic;
+  opacity: 0;
+  transition: 1s;
+}
+
+.signature.show {
+  opacity: 1;
+}
+
+/* FINAL */
+
+.final-title {
+  font-size: clamp(43px, 12vw, 70px);
+  background: linear-gradient(120deg, #fff, #f6dba0, #c5a4ff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  line-height: 1.2;
+}
+
+.heart {
+  font-size: 30px;
+  display: inline-block;
+  animation: heartbeat 1.5s infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.2); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+}
+
+.footer {
+  position: fixed;
+  bottom: 17px;
+  left: 0;
+  width: 100%;
+  z-index: 7;
+  text-align: center;
+  font-family: system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #aaa0bd;
+  pointer-events: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-height: 650px) {
+  .screen {
+    padding: 15px 15px 75px;
+  }
+
+  .moon {
+    width: 65px;
+    height: 65px;
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    margin-top: 20px;
+  }
+
+  .letter-content {
+    padding: 20px 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="ambient"></div>
+<canvas id="stars"></canvas>
+<canvas id="effects"></canvas>
+
+<!-- SCREEN 1 -->
+
+<section class="screen active" id="screen1">
+
+  <div class="moon"></div>
+
+  <div class="small-label">
+    A little something for someone special
+  </div>
+
+  <h1>
+    Hey,<br>
+    <span class="glow">Miss Saiyara!</span>
+  </h1>
+
+  <p style="margin-top:22px">
+    Some people make ordinary days
+    a little more special.
+    This little surprise is for one of them. 💜
+  </p>
+
+  <button class="btn" onclick="goTo(2)">
+    There's something for you ✨
+  </button>
+
+</section>
+
+
+<!-- SCREEN 2 -->
+
+<section class="screen" id="screen2">
+
+  <div class="small-label">
+    A little note, just for you
+  </div>
+
+  <h2>
+    Some wishes are<br>
+    better when they're opened.
+  </h2>
+
+  <div class="envelope-wrap" id="envelope"
+       onclick="openEnvelope()">
+
+    <div class="letter"></div>
+    <div class="envelope"></div>
+    <div class="flap"></div>
+    <div class="seal">💜</div>
+
+  </div>
+
+  <p>Tap the envelope to open it.</p>
+
+  <button class="btn hidden" id="readBtn"
+          onclick="goTo(3)">
+    A little message for you →
+  </button>
+
+</section>
+
+
+<!-- SCREEN 3 -->
+
+<section class="screen" id="screen3">
+
+  <div class="small-label">
+    A wish from the heart
+  </div>
+
+  <div class="letter-content">
+
+    <h2 style="margin-bottom:20px">
+      Dear <span class="glow">Miss Saiyara</span>,
+    </h2>
+
+    <p class="typed" id="typedText"></p>
+
+    <div class="signature" id="signature">
+      With warm wishes,<br>
+      Parth ✨
+    </div>
+
+  </div>
+
+  <button class="btn hidden" id="finalBtn"
+          onclick="goTo(4)">
+    One last thing... →
+  </button>
+
+</section>
+
+
+<!-- SCREEN 4 -->
+
+<section class="screen" id="screen4">
+
+  <div class="heart">💜</div>
+
+  <div class="small-label">
+    Here's to a beautiful new beginning
+  </div>
+
+  <h1 class="final-title">
+    Happy<br>New Year!
+  </h1>
+
+  <p style="margin-top:22px">
+    May your days be brighter,<br>
+    your dreams keep growing,<br>
+    and your heart always find reasons to smile.
+  </p>
+
+  <div style="margin-top:35px;color:#f6dba0">
+    Made with code, sent with care.
+  </div>
+
+  <p style="font-size:13px;margin-top:12px">
+    — Parth S. Talpada
+  </p>
+
+  <button class="btn" onclick="shareWish()">
+    Share this little wish ↗
+  </button>
+
+  <button class="btn" onclick="restart()"
+          style="margin-top:12px">
+    Experience again ↻
+  </button>
+
+</section>
+
+<div class="footer">
+  A LITTLE EXPERIENCE CREATED BY PARTH.DEV
+</div>
+
+
+<script>
+
+/* SCREEN TRANSITIONS */
+
+function goTo(number) {
+
+  document.querySelectorAll(".screen").forEach(el => {
+    el.classList.remove("active");
+    el.scrollTop = 0;
+  });
+
+  const nextScreen = document.getElementById("screen" + number);
+
+  nextScreen.classList.add("active");
+
+  if (number === 3) {
+    startTyping();
+  }
+
+  if (number === 4) {
+    startFireworks();
+  }
+
+}
+
+
+/* ENVELOPE */
+
+let envelopeOpened = false;
+
+function openEnvelope() {
+
+  if (envelopeOpened) return;
+
+  envelopeOpened = true;
+
+  document.getElementById("envelope")
+    .classList.add("open");
+
+  setTimeout(() => {
+    document.getElementById("readBtn")
+      .classList.remove("hidden");
+  }, 1300);
+
+}
+
+
+/* PERSONAL MESSAGE */
+
+const message =
+`As this beautiful new year begins, I just want to wish you something from the heart.
+
+I'm genuinely glad that we got to know each other and built this friendship.
+
+From our everyday conversations and sharing random thoughts to those little moments that turn into beautiful memories, it's the little things that make our friendship special.
+
+I hope we continue sharing stories, making memories and being there for each other, just as we are.
+
+May this year bring you happiness, exciting opportunities and everything you've been hoping for.
+
+No matter how the year unfolds, keep that smile, keep being yourself and never lose the little things that make you YOU. 💜`;
+
+let typingStarted = false;
+let typingTimer = null;
+
+function startTyping() {
+
+  if (typingStarted) return;
+
+  typingStarted = true;
+
+  const element = document.getElementById("typedText");
+
+  let index = 0;
+
+  function type() {
+
+    if (index < message.length) {
+
+      element.textContent += message.charAt(index);
+
+      const char = message.charAt(index);
+      index++;
+
+      let delay = [".", "!", "?"].includes(char)
+        ? 180
+        : char === "\n" ? 350 : 25;
+
+      typingTimer = setTimeout(type, delay);
+
+    } else {
+
+      document.getElementById("signature")
+        .classList.add("show");
+
+      document.getElementById("finalBtn")
+        .classList.remove("hidden");
+
+    }
+
+  }
+
+  type();
+
+}
+
+
+/* STARS */
+
+const starCanvas = document.getElementById("stars");
+const starCtx = starCanvas.getContext("2d");
+
+let stars = [];
+
+function resizeCanvas(canvas) {
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+}
+
+function initStars() {
+
+  stars = [];
+
+  for (let i = 0; i < 110; i++) {
+
+    stars.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      radius: Math.random() * 1.5,
+      alpha: Math.random(),
+      speed: Math.random() * .015 + .003
+    });
+
+  }
+
+}
+
+function drawStars() {
+
+  starCtx.clearRect(0, 0,
+    window.innerWidth, window.innerHeight);
+
+  stars.forEach(s => {
+
+    s.alpha += s.speed;
+
+    let opacity = (Math.sin(s.alpha) + 1) / 2;
+
+    starCtx.beginPath();
+
+    starCtx.arc(s.x, s.y, s.radius, 0,
+      Math.PI * 2);
+
+    starCtx.fillStyle =
+      `rgba(255,245,230,${opacity})`;
+
+    starCtx.fill();
+
+  });
+
+  requestAnimationFrame(drawStars);
+
+}
+
+resizeCanvas(starCanvas);
+initStars();
+drawStars();
+
+
+/* FIREWORKS */
+
+const effectCanvas = document.getElementById("effects");
+const fx = effectCanvas.getContext("2d");
+
+let particles = [];
+let fireworksStarted = false;
+
+resizeCanvas(effectCanvas);
+
+function burst(x, y) {
+
+  const colors = [
+    "#f6dba0",
+    "#c5a4ff",
+    "#ffffff",
+    "#f5a9d0"
+  ];
+
+  for (let i = 0; i < 65; i++) {
+
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = Math.random() * 3.5 + .5;
+
+    particles.push({
+
+      x, y,
+
+      vx: Math.cos(angle) * velocity,
+      vy: Math.sin(angle) * velocity,
+
+      life: 90,
+      maxLife: 90,
+
+      color: colors[
+        Math.floor(Math.random() * colors.length)
+      ],
+
+      size: Math.random() * 2 + .5
+
+    });
+
+  }
+
+}
+
+function drawEffects() {
+
+  fx.clearRect(0, 0,
+    window.innerWidth, window.innerHeight);
+
+  particles = particles.filter(p => p.life > 0);
+
+  particles.forEach(p => {
+
+    p.x += p.vx;
+    p.y += p.vy;
+
+    p.vx *= .985;
+    p.vy *= .985;
+    p.vy += .012;
+
+    p.life--;
+
+    fx.globalAlpha = p.life / p.maxLife;
+    fx.fillStyle = p.color;
+
+    fx.beginPath();
+    fx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    fx.fill();
+
+  });
+
+  fx.globalAlpha = 1;
+
+  requestAnimationFrame(drawEffects);
+
+}
+
+drawEffects();
+
+function startFireworks() {
+
+  if (fireworksStarted) return;
+
+  fireworksStarted = true;
+
+  let count = 0;
+
+  const interval = setInterval(() => {
+
+    burst(
+      window.innerWidth * (.15 + Math.random() * .7),
+      window.innerHeight * (.12 + Math.random() * .5)
+    );
+
+    count++;
+
+    if (count >= 9) {
+      clearInterval(interval);
+    }
+
+  }, 650);
+
+}
+
+
+/* RESIZE */
+
+window.addEventListener("resize", () => {
+
+  resizeCanvas(starCanvas);
+  resizeCanvas(effectCanvas);
+  initStars();
+
+});
+
+
+/* SHARE */
+
+async function shareWish() {
+
+  const data = {
+
+    title: "A Little Wish For Miss Saiyara 💜",
+
+    text: "A little New Year surprise, created especially for you. 💜",
+
+    url: location.href
+
+  };
+
+  try {
+
+    if (navigator.share) {
+
+      await navigator.share(data);
+
+    } else if (navigator.clipboard) {
+
+      await navigator.clipboard.writeText(location.href);
+
+      alert("Link copied! Share it with someone.");
+
+    } else {
+
+      alert("Please copy the website URL manually.");
+
+    }
+
+  } catch (error) {
+
+    if (error.name !== "AbortError") {
+      alert("Please copy the website URL manually.");
+    }
+
+  }
+
+}
+
+
+/* RESTART */
+
+function restart() {
+
+  envelopeOpened = false;
+  typingStarted = false;
+  fireworksStarted = false;
+
+  clearTimeout(typingTimer);
+
+  document.getElementById("envelope")
+    .classList.remove("open");
+
+  document.getElementById("readBtn")
+    .classList.add("hidden");
+
+  document.getElementById("typedText")
+    .textContent = "";
+
+  document.getElementById("signature")
+    .classList.remove("show");
+
+  document.getElementById("finalBtn")
+    .classList.add("hidden");
+
+  particles = [];
+
+  goTo(1);
+
+}
+
+</script>
+
+</body>
+  </html>
+    
